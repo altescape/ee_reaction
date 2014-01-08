@@ -1,0 +1,56 @@
+{!--
+@todo: check member has already submitted so we can add a class or radio:checked
+@todo: make like http://www.popsugar.com.au/X-Factor-Australia-2013-Winner-Interview-Dami-Im-32291170
+@todo: make ajax
+--}
+
+<style>
+  label {
+    display: inline-block;
+    width: 60px;
+    text-align: center;
+    border: 1px solid #CCC;
+  }
+  label span {
+    display: block;
+  }
+  label.active {
+    border-color: red;
+  }
+</style>
+<h1><a href="/entry/">Entries</a></h1>
+{exp:channel:entries channel="entry"}
+<h2><a href="/entry/{url_title}">{title}</a></h2>
+<h4>{entry_excerpt}</h4>
+<p>{entry_body}</p>
+{if segment_2}
+
+{exp:reaction:active value='2' entry_id="{entry_id}"}
+
+
+{exp:reaction:form
+  entry_id="{entry_id}"
+  reactions="STAR|LOVE|SMILE|LOL|POOR"
+  url_title="{url_title}"
+  return="/entry/{url_title}"
+}
+<label class="{active_class}">
+  <span>{reaction}</span>
+  <input id="reaction_{entry_id}_{num}" name="value" type="radio" value="{num}" />
+  <span>{reaction_count}</span>
+  <span>{active}</span>
+</label>
+{/exp:reaction:form}
+
+<h3>TOTAL: {exp:reaction:total_votes}</h3>
+
+{/if}
+<hr>
+{/exp:channel:entries}
+
+{exp:jquery:script_tag}
+<script>
+  $('input[type=radio]').on('change', function(){
+    $('form').submit();
+  })
+</script>
