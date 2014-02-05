@@ -3,8 +3,10 @@
 $lang = array(	
 
 'reaction_module_name' => 'Reaction',
+'reaction_label' => 'Reaction',
 'reaction_module_description' => 'Reaction Module',
 'module_home' => 'Reaction Home',
+'reaction_group_name' => 'Name',
 	
 );
 
