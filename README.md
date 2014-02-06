@@ -6,7 +6,9 @@ EE Reaction
 Reaction is a plugin to capture reactions to ExpressionEngine entries
 At the moment it's a rough work in progress - but the idea is to have something where users can state their reaction to any kind of channel entry.
 
-So users can state reactions sucg as...
+![Reactions](https://s3-eu-west-1.amazonaws.com/mwimages/github/popsugar-reactions.png)
+
+So users can state reactions such as...
 STAR, LOVE, SMILE, LOL, POOR
 The plugin will count the reactions and store in a database plus show in front end per entry.
 
