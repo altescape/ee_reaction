@@ -36,7 +36,6 @@ class Reaction_mcp
         ee()->cp->set_right_nav(
             array(
                 'Add Group' => BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=reaction'.AMP.'method=group_add',
-                'Edit Group' => BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=reaction'.AMP.'method=edit_group',
                 'Groups' => BASE.AMP.'C=addons_modules'.AMP.'M=show_module_cp'.AMP.'module=reaction'.AMP.'method=list_groups'
             )
         );
@@ -62,7 +61,7 @@ class Reaction_mcp
             'module_base'				=> $this->_base_url,
             'action'					=> $this->_base_url.AMP.'method=reaction_update'
         );
-
+        $message = ee()->session->flashdata('result_message');
         return ee()->load->view('index', $vars, TRUE);
 
     }
@@ -121,6 +120,50 @@ class Reaction_mcp
         return ee()->load->view('group_save', $vars, TRUE);
     }
 
+    /**
+     * @return array
+     */
+    public function records()
+    {
+        if (func_num_args() >= 1) {
+            // Query db with id
+            $results = ee()->db->select('*')
+                ->from('reaction_groups')
+                ->where(array(
+                        'reaction_group_id' => func_get_arg(0)
+                    ))
+                ->get();
+        } else {
+            // Query db without id
+            $results = ee()->db->select('*')
+                ->from('reaction_groups')
+                ->get();
+
+        }
+
+        if ($results->num_rows() == 0)
+        {
+            exit('No groups exist');
+        }
+
+        $data = array();
+
+        if ($results->num_rows() > 0)
+        {
+            foreach($results->result_array() as $row)
+            {
+                $reactions = array(
+                    'reaction_group_id' => $row['reaction_group_id'],
+                    'reaction_group_name' => $row['reaction_group_name'],
+                    'reactions' => $row['reactions'],
+                );
+                array_push($data, $reactions);
+            }
+        }
+
+        return $data;
+    }
+
     public function list_groups()
     {
         ee()->load->library(array('table','javascript'));
@@ -128,82 +171,64 @@ class Reaction_mcp
         ee()->view->cp_page_title = lang('reaction_module_name');
         ee()->cp->add_to_head('<style type="text/css" media="screen"></style>');
 
-        // Query db
-        $results = ee()->db->select('*')
-            ->from('reaction_groups')
-            ->get();
-
-        if ($results->num_rows() == 0)
-        {
-            exit('No groups exist');
-        }
-
-        if ($results->num_rows() > 0)
-        {
-            $data = array();
-            foreach($results->result_array() as $row)
-            {
-                $reactions = array(
-                    'reaction_group_id' => $row['reaction_group_id'],
-                    'reaction_group_name' => $row['reaction_group_name']
-                );
-                array_push($data, $reactions);
-            }
-        }
-
         $vars = array(
             'cp_page_title'				=> lang('reaction_module_name'),
-            'module_base'				=> $this->_base_url,
-            'action'					=> $this->_base_url.AMP.'method=reaction_group_update',
-            'data' => $data,
+            'data' => $this->records(),
         );
 
         return ee()->load->view('group_list', $vars, TRUE);
 
     }
 
-    public function edit_group()
+    public function record()
     {
         ee()->load->library(array('table','javascript'));
         $this->EE->cp->set_variable('cp_page_title', lang('reaction_module_name'));
         ee()->view->cp_page_title = lang('reaction_module_name');
         ee()->cp->add_to_head('<style type="text/css" media="screen"></style>');
 
-        // Query db
-        $results = ee()->db->select('*')
-            ->from('reaction_groups')
-            ->where(array(
-                    'reaction_group_id' => $_GET['group'],
-                ))
-            ->get();
-
-        if ($results->num_rows() == 0)
-        {
-            exit('No groups exist');
-        }
-
-        if ($results->num_rows() > 0)
-        {
-            $data = array();
-            foreach($results->result_array() as $row)
-            {
-                $reactions = array(
-                    'reaction_group_id' => $row['reaction_group_id'],
-                    'reaction_group_name' => $row['reaction_group_name'],
-                    'reactions' => $row['reactions']
-                );
-                array_push($data, $reactions);
-            }
-        }
-
         $vars = array(
             'cp_page_title'				=> lang('reaction_module_name'),
             'module_base'				=> $this->_base_url,
-            'action'					=> $this->_base_url.AMP.'method=reaction_group_update',
-            'data' => $data,
+            'action'					=> $this->_base_url.AMP.'method=update',
+            'data' => $this->records($_GET['id'])
         );
 
         return ee()->load->view('group_edit', $vars, TRUE);
+
+    }
+
+    public function update()
+    {
+        ee()->load->library(array('table','javascript'));
+        $this->EE->cp->set_variable('cp_page_title', lang('reaction_module_name'));
+        ee()->view->cp_page_title = lang('reaction_module_name');
+        ee()->cp->add_to_head('<style type="text/css" media="screen"></style>');
+
+        $id = $_POST['id'];
+        $group_name = $_POST['group_name'];
+        $reaction_names = array(
+            'reaction_1' => $_POST['r1'],
+            'reaction_2' => $_POST['r2'],
+            'reaction_3' => $_POST['r3'],
+            'reaction_4' => $_POST['r4'],
+            'reaction_5' => $_POST['r5'],
+        );
+        $reaction_names_serial = serialize($reaction_names);
+
+        // update
+        ee()->db->update(
+            'reaction_groups',
+            array(
+                'reaction_group_name'  => $group_name,
+                'reactions' => $reaction_names_serial,
+            ),
+            array(
+                'reaction_group_id' => $id
+            )
+        );
+
+        return ee()->load->view('group_list', $this->list_groups(), TRUE);
 
     }
 

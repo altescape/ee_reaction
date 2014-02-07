@@ -1,9 +1,9 @@
 <?
-$reaction = $data;
+$reaction = $data[0];
 
-$reactions_names = unserialize($reaction[0]['reactions']);
+$reactions_names = unserialize($reaction['reactions']);
 
-form_open($action);
+echo form_open($action);
 
 $this->table->set_heading(
     lang('Group name'),
@@ -14,7 +14,7 @@ $this->table->add_row(
     '<strong>'.lang('reaction_group_name').'</strong>',
     array(
         'style'	=> 'width:50%',
-        'data'	=> form_input(array('name'=>'name','id'=> 'name','value'=>$reaction[0]['reaction_group_name'],'type'=>'text'))
+        'data'	=> form_input(array('name'=>'group_name','id'=> 'group_name','value'=>$reaction['reaction_group_name'],'type'=>'text'))
     )
 );
 echo $this->table->generate();
@@ -37,6 +37,8 @@ foreach($reactions_names as $reaction_name) {
 }
 
 echo $this->table->generate(); ?>
+
+<?= form_input(array('name'=>'id','id'=> 'id','value'=>$reaction['reaction_group_id'],'type'=>'hidden')); ?>
 
 <p><?=form_submit(array('name'=>'submit','value'=>lang('update'),'class'=>'submit'));?></p>
 <?=form_close();?>
